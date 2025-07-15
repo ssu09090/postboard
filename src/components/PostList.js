@@ -12,7 +12,7 @@ const PostList = () => {
   const fetchPosts = async () => {
     //supabase에서 데이터 가져오기 (일단 화면에 처음 한번만 읽어오게)
     // const { data, error } = await supabase
-    //   .from("posts")
+    //   .from("Lecture3_posts")
     //   .select("id,title,users(nickname)");
     // if (!error) {
     //   setPosts(data);
@@ -22,8 +22,8 @@ const PostList = () => {
     const from = (current - 1) * POSTS_PAGE;
     const to = from + POSTS_PAGE - 1;
     const { data, error } = await supabase
-      .from("posts")
-      .select("id,title,users(nickname)")
+      .from("Lecture3_posts")
+      .select("id,title,Lecture3_users(nickname)")
       .order("id", { ascending: false }) //gpt가 알려준 역순방법 (최신글순서)
       .range(from, to);
     if (!error) {
@@ -32,7 +32,7 @@ const PostList = () => {
   };
   const fetPostCount = async () => {
     const { count } = await supabase
-      .from("posts")
+      .from("Lecture3_posts")
       .select("id", { count: "exact", head: true });
     setTotal(count);
     setPage(Math.ceil(count / POSTS_PAGE));
@@ -48,22 +48,24 @@ const PostList = () => {
 
   return (
     <div id="postlist">
-      <h2>게시글 목록</h2>
-      <Link to="/write">새글작성</Link>
+      <div className="list-head">
+        {" "}
+        <h2>게시글 목록</h2>
+        <Link to="/write">새글작성</Link>
+      </div>
       <ul>
         {posts &&
           posts.map((item) => {
             return (
               <li key={item.id}>
-                <Link to={`/post/${item.id}`}>
-                  {item.title}-{item.users.nickname}
-                </Link>
+                <Link to={`/post/${item.id}`}>{item.title}</Link>
+                <p>{item.Lecture3_users.nickname}</p>
               </li>
             );
           })}
       </ul>
       {/* 페이지 설정 */}
-      <div>
+      <div className="page-btn">
         {Array(page)
           .fill(null)
           .map((item, idx) => {

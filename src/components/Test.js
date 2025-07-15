@@ -3,19 +3,19 @@ import { supabase } from "../supabaseClient";
 const Test = () => {
   const [posts,setPosts] = useState([]);
   const fetchPosts = async ()=>{
-    const {data,error} = await supabase
-      .from('posts')
-      .select('id,title,content,users(nickname)');
+    const { data, error } = await supabase
+      .from("Lecture3_posts")
+      .select("id,title,content,users(nickname)");
     setPosts(data);
   }
   useEffect(()=>{
     fetchPosts();
   },[]);
   const handleClick = async (id)=>{
-    const {error} = await supabase
-      .from('posts')
+    const { error } = await supabase
+      .from("Lecture3_posts")
       .delete()
-      .eq('id',id);
+      .eq("id", id);
     if(error) alert(error);
   }
   return (
@@ -24,9 +24,15 @@ const Test = () => {
         posts.map((item)=>{
           return (
             <div key={item.id}>
-              <p onClick={()=>{handleClick(item.id)}}>{item.title}</p>
+              <p
+                onClick={() => {
+                  handleClick(item.id);
+                }}
+              >
+                {item.title}
+              </p>
               <p>{item.content}</p>
-              <p>{item.users.nickname}</p>
+              <p>{item.Lecture3_users.nickname}</p>
             </div>
           );
         })

@@ -9,9 +9,9 @@ const Login = ({onLogin}) => {
     e.preventDefault();
     //users 테이블에 email 주소 정보를 조회 : select
     const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email',email.trim())
+      .from("Lecture3_users")
+      .select("*")
+      .eq("email", email.trim())
       .single();
     if( error || !data ){
       alert("존재하지 않는 이메일 입니다");

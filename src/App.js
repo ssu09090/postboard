@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import PostDetail from "./components/PostDetail";
 import Write from "./components/Write";
 import Edit from "./components/Edit";
+import "./global.scss";
+import "./App.scss";
 
 const App = () => {
   const USER_KEY='users';

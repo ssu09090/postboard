@@ -9,21 +9,22 @@ const Edit = () => {
   const [content,setContent] = useState('');
   const handleUpdate = async (e)=>{
     e.preventDefault();
-    const {error} = await supabase
-      .from('posts')
+    const { error } = await supabase
+      .from("Lecture3_posts")
       .update({
         title: title,
-        content: content
-      }).eq('id',id);
+        content: content,
+      })
+      .eq("id", id);
       if( !error ){
         navigate(`/post/${id}`);
       }
   }
   const fetchPosts = async ()=>{
-    const {data} = await supabase
-      .from('posts')
-      .select('*')
-      .eq('id',id)
+    const { data } = await supabase
+      .from("Lecture3_posts")
+      .select("*")
+      .eq("id", id)
       .single();
     setTitle(data.title);
     setContent(data.content);

@@ -9,10 +9,10 @@ const Write = () => {
   const USER = JSON.parse(localStorage.getItem('users'));
   const handleSubmit = async (e)=>{
     e.preventDefault();
-    const {error} = await supabase.from('posts').insert({
+    const { error } = await supabase.from("Lecture3_posts").insert({
       user_id: USER.id,
       title: title,
-      content: content
+      content: content,
     });
     if( !error ){
       navigate('/');
