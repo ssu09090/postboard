@@ -25,19 +25,23 @@ const App = () => {
     setIsLoading(false);
   },[]);
   return (
-    <BrowserRouter>
-      <Header user={user} onLogin={handleUser}/>
+    <BrowserRouter basename="/postboard">
+      <Header user={user} onLogin={handleUser} />
       <Routes>
-        <Route path="/" 
-               element={
-                isLoading ? (
-                  <div>로딩중.....</div>
-                ) : (
-                  user? <PostList /> : <Navigate to="/login" />
-                )} 
+        <Route
+          path="/"
+          element={
+            isLoading ? (
+              <div>로딩중.....</div>
+            ) : user ? (
+              <PostList />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
-        <Route path="/login" element={<Login onLogin={handleUser}/>}/>
-        <Route path="/post/:id" element={<PostDetail />}/>
+        <Route path="/login" element={<Login onLogin={handleUser} />} />
+        <Route path="/post/:id" element={<PostDetail />} />
         <Route path="/write" element={<Write />} />
         <Route path="/edit/:id" element={<Edit />} />
       </Routes>
