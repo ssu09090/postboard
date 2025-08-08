@@ -6,91 +6,102 @@ const PostDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [post, setPost] = useState(null);
-  const [comment, setComment] = useState([]);
+  const [comments, setComments] = useState([]);
   const [newText, setNewText] = useState("");
   const USER = JSON.parse(localStorage.getItem("users"));
 
-  const fetchPosts = async () => {
-    const { data } = await supabase
+  useEffect(() => {
+    fetchPost();
+    fetchComments();
+  }, [id]);
+
+  const fetchPost = async () => {
+    const { data, error } = await supabase
       .from("pb_posts")
       .select("id,title,content,create_at,pb_users(nickname)")
       .eq("id", id)
       .single();
-    setPost(data);
+    if (error) console.error("Error fetching post:", error);
+    else setPost(data);
   };
 
   const fetchComments = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("pb_comments")
-      .select("id,content,pb_users(nickname)")
-      .eq("post_id", id);
-    setComment(data);
+      .select(
+        `
+        id,
+        content,
+        create_at,
+        author:pb_users!pb_comments_user_id_fkey(
+          nickname
+        )`
+      )
+      .eq("post_id", id)
+      .order("create_at", { ascending: true });
+    if (error) console.error("Error fetching comments:", error);
+    else setComments(data);
   };
 
-  const handleClick = async () => {
+  const handleDelete = async () => {
     if (window.confirm("정말 삭제하시겠습니까?")) {
-      await supabase.from("pb_posts").delete().eq("id", id);
-      navigate("/");
+      const { error } = await supabase.from("pb_posts").delete().eq("id", id);
+      if (error) console.error("Error deleting post:", error);
+      else navigate("/");
     }
   };
 
-  const handleUpdate = () => {
-    navigate(`/edit/${id}`);
-  };
+  const handleEdit = () => navigate(`/edit/${id}`);
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    await supabase.from("pb_comments").insert({
+    const content = newText.trim();
+    if (!content) return;
+    const { error } = await supabase.from("pb_comments").insert({
       post_id: id,
       user_id: USER.id,
-      content: newText,
+      content,
     });
-    setNewText("");
-    fetchComments();
+    if (error) console.error("Error adding comment:", error);
+    else {
+      setNewText("");
+      fetchComments();
+    }
   };
-  useEffect(() => {
-    fetchPosts();
-    fetchComments();
-  }, [id]);
 
-  const isAuthor =
-    post && USER ? post.pb_users.nickname === USER.nickname : false;
-    
+  const isAuthor = post?.pb_users?.nickname === USER.nickname;
+
   return (
     <div id="post-detail">
       {post && (
         <>
-          <p>작성자 : {post.pb_users.nickname}</p>
+          <p>작성자: {post.pb_users.nickname}</p>
           <h2>{post.title}</h2>
           <p>{post.content}</p>
           {isAuthor && (
             <div className="detail-btn">
-              <button onClick={handleClick}>삭제</button>
-              <button onClick={handleUpdate}>수정</button>
+              <button onClick={handleDelete}>삭제</button>
+              <button onClick={handleEdit}>수정</button>
             </div>
           )}
         </>
       )}
 
+      <h3>댓글</h3>
       <ul>
-        {comment &&
-          comment.map((item) => {
-            // console.log( item );
-            return (
-              <li key={item.id}>
-                {item.pb_users.nickname} : {item.content}
-              </li>
-            );
-          })}
+        {comments.map((c) => (
+          <li key={c.id}>
+            <strong>{c.author.nickname}</strong>: {c.content}
+          </li>
+        ))}
       </ul>
+
       <form onSubmit={handleCommentSubmit}>
         <textarea
           value={newText}
-          onChange={(e) => {
-            setNewText(e.target.value);
-          }}
+          onChange={(e) => setNewText(e.target.value)}
           required
-        ></textarea>
+        />
         <button type="submit">댓글작성</button>
       </form>
     </div>
